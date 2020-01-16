@@ -6,8 +6,8 @@
   "license": "MIT",
   "author": "Anton Bracke (https://beechy.de)",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
+    "dev": "nodemon --watch src src/index.js ",
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --ext .js --ignore-path .gitignore ."
   },
@@ -15,7 +15,9 @@
     "axios": "^0.19.1",
     "cheerio": "^1.0.0-rc.3",
     "dotenv": "^8.2.0",
-    "querystring": "^0.2.0"
+    "lowdb": "^1.0.0",
+    "querystring": "^0.2.0",
+    "telegraf": "^3.35.0"
   },
   "devDependencies": {
     "eslint": "^6.8.0",

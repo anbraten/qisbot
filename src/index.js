@@ -1,119 +1,55 @@
-const axios = require('axios');
-const querystring = require('querystring');
-const cheerio = require('cheerio');
 require('dotenv').config();
 
-const BASE_URL = process.env.QIS_URL;
+const Api = require('./api');
+const DB = require('./db');
+const Telegram = require('./telegram');
 
-async function restCall(_options) {
-  const options = {
-    method: 'get',
-    maxRedirects: 0,
-    ..._options,
-  };
-  let res = null;
+const { TELEGRAM_CHATID } = process.env;
 
-  try {
-    res = await axios(options);
-  } catch (error) {
-    console.error(error.message);
-    console.log(error.response.data || null);
-  }
+let token;
+let asi;
 
-  return res;
+async function updateGrades() {
+  const grades = await Api.fetchGrades(token, asi);
+
+  if (!grades) { return; }
+
+  grades.forEach(async (g) => {
+    if (!DB.get('grades').find({ id: g.id }).value()) {
+      DB.get('grades').push(g).write();
+      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für ${g.name} im QIS erhalten.`);
+      console.log('New grade for:', g.name);
+    }
+  });
 }
-
-async function login(username, password) {
-  const data = {
-    username,
-    password,
-    submit: 'Ok',
-  };
-
-  const options = {
-    method: 'post',
-    url: `${BASE_URL}/rds?state=user&type=1&category=auth.login`,
-    data: querystring.stringify(data),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    validateStatus: (status) => (status >= 200 && status <= 302),
-    maxRedirects: 0,
-  };
-
-  const res = await restCall(options);
-
-  if (res) {
-    return res.headers['set-cookie'].join(' ').match(/JSESSIONID=(.*?);/i)[1];
-  }
-
-  return null;
-}
-
-async function navigate(token, startUrl, linkText) {
-  const options = {
-    url: startUrl,
-    headers: {
-      Cookie: `SESSIONID=${token};`,
-    },
-    validateStatus: (status) => (status >= 200 && status <= 302),
-    maxRedirects: 0,
-  };
-
-  const res = await restCall(options);
-
-  if (res) {
-    const $ = cheerio.load(res.data);
-    console.log($('a'));
-    return null;
-    /*
-    $('a').filter((i) => {
-      console.log(i);
-      return $(i).text() === linkText;
-    });
-    */
-  }
-
-  return null;
-}
-
-async function fetchMarks(token) {
-  const data = {
-    state: 'notenspiegelStudent',
-    next: 'list.vm',
-    nextdir: 'qispos/notenspiegel/student',
-    createInfos: 'Y',
-    struct: 'auswahlBaum',
-    nodeID: 'auswahlBaum|abschluss:abschl=84',
-    expand: '0',
-    asi: 'P5rn7wV2yZ41ihxi8kzV',
-  };
-
-  const options = {
-    url: `${BASE_URL}//rds?${querystring.stringify(data)}`,
-    headers: {
-      Cookie: `SESSIONID=${token};`,
-    },
-    validateStatus: (status) => (status >= 200 && status <= 302),
-    maxRedirects: 0,
-  };
-
-  const res = await restCall(options);
-
-  if (res) {
-    return res.data;
-  }
-
-  return null;
-}
-
 
 async function load() {
-  const token = await login(process.env.QIS_USER, process.env.QIS_PASSWORD);
-  const ais = await navigate(token, `${BASE_URL}/rds?state=user&type=0`, 'Prüfungsverwaltung');
-  // const res = await fetchMarks(token, ais);
-  console.log(ais);
+  console.log('Started loading ...');
+
+  if (!token || !Api.isTokenValid(token)) {
+    token = await Api.login(process.env.QIS_USER, process.env.QIS_PASSWORD);
+    asi = await Api.fetchAsi(token);
+    // save token & asi to database
+    DB.set('auth', {
+      token,
+      asi,
+    }).write();
+
+    console.log('new token:', token, 'and asi:', asi);
+  }
+
+  await updateGrades();
+  console.log('Finished loading!');
 }
 
-load();
-// setInterval(load, 1000);
+async function init() {
+  // load token & asi from database
+  token = DB.get('auth.token').value();
+  asi = DB.get('auth.asi').value();
+
+  console.log('QIS-Bot V1.0 started');
+  await load();
+  setInterval(load, 5 * 60 * 1000); // check every 5 Minutes
+}
+
+init();
