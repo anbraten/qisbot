@@ -1,0 +1,12 @@
+version: '3'
+services:
+  qisbot:
+    image: node:12-alpine
+    environment:
+      - NODE_ENV=production
+    working_dir: /app
+    command: /bin/sh -c "yarn && yarn run start"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - .:/app/
+    restart: always
