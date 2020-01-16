@@ -4,7 +4,12 @@ const Api = require('./api');
 const DB = require('./db');
 const Telegram = require('./telegram');
 
-const { TELEGRAM_CHATID } = process.env;
+
+const BASE_URL = process.env.QIS_URL;
+const {
+  TELEGRAM_CHATID,
+  QIS_REFRESH
+} = process.env;
 
 let token;
 let asi;
@@ -17,7 +22,7 @@ async function updateGrades() {
   grades.forEach(async (g) => {
     if (!DB.get('grades').find({ id: g.id }).value()) {
       DB.get('grades').push(g).write();
-      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für ${g.name} im QIS erhalten.`);
+      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* im erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
       console.log('New grade for:', g.name);
     }
   });
@@ -49,7 +54,7 @@ async function init() {
 
   console.log('QIS-Bot V1.0 started');
   await load();
-  setInterval(load, 5 * 60 * 1000); // check every 5 Minutes
+  setInterval(load, (QIS_REFRESH || 5 ) * 60 * 1000); // check every 5 Minutes
 }
 
 init();

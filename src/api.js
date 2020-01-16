@@ -87,7 +87,7 @@ async function fetchAsi(token) {
 // check if login is still valid
 async function isTokenValid(token) {
   const options = {
-    url: `${BASE_URL}//rds?state=user&type=0`,
+    url: `${BASE_URL}/rds?state=user&type=0`,
     headers: {
       Cookie: `JSESSIONID=${token};`,
     },
