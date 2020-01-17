@@ -2,6 +2,8 @@ const axios = require('axios');
 const querystring = require('querystring');
 const cheerio = require('cheerio');
 
+const Log = require('./log');
+
 const BASE_URL = process.env.QIS_URL;
 
 async function restCall(_options) {
@@ -16,7 +18,9 @@ async function restCall(_options) {
     res = await axios(options);
   } catch (error) {
     console.error(error.message);
-    console.log(error.response.data || null);
+    if (error.response && error.response.data) {
+      Log('debug', error.response.data);
+    }
   }
 
   return res;

@@ -24,6 +24,10 @@ QIS_PASSWORD=*****
 # telegram bot settings (leave empty to disable)
 TELEGRAM_TOKEN=
 TELEGRAM_CHATID=
+
+# logging settings
+LOG=info
+# LOG=debug
 ```
 
 ## Installation

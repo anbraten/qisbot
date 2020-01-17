@@ -3,13 +3,10 @@ require('dotenv').config();
 const Api = require('./api');
 const DB = require('./db');
 const Telegram = require('./telegram');
-
+const Log = require('./log');
 
 const BASE_URL = process.env.QIS_URL;
-const {
-  TELEGRAM_CHATID,
-  QIS_REFRESH
-} = process.env;
+const { TELEGRAM_CHATID, QIS_REFRESH } = process.env;
 
 let token;
 let asi;
@@ -23,13 +20,13 @@ async function updateGrades() {
     if (!DB.get('grades').find({ id: g.id }).value()) {
       DB.get('grades').push(g).write();
       await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* im erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
-      console.log('New grade for:', g.name);
+      Log('info', 'New grade for:', g.name);
     }
   });
 }
 
 async function load() {
-  console.log('Started loading ...');
+  Log('debug', 'Started loading ...');
 
   if (!token || !Api.isTokenValid(token)) {
     token = await Api.login(process.env.QIS_USER, process.env.QIS_PASSWORD);
@@ -40,11 +37,11 @@ async function load() {
       asi,
     }).write();
 
-    console.log('new token:', token, 'and asi:', asi);
+    Log('debug', 'new token:', token, 'and asi:', asi);
   }
 
   await updateGrades();
-  console.log('Finished loading!');
+  Log('debug', 'Finished loading!');
 }
 
 async function init() {
@@ -52,9 +49,9 @@ async function init() {
   token = DB.get('auth.token').value();
   asi = DB.get('auth.asi').value();
 
-  console.log('QIS-Bot V1.0 started');
+  Log('info', 'QIS-Bot V1.0 started');
   await load();
-  setInterval(load, (QIS_REFRESH || 5 ) * 60 * 1000); // check every 5 Minutes
+  setInterval(load, (QIS_REFRESH || 5) * 60 * 1000); // check every 5 Minutes
 }
 
 init();
