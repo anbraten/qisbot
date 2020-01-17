@@ -2,12 +2,10 @@ const { Telegram } = require('telegraf');
 
 const token = process.env.TELEGRAM_TOKEN;
 
-if (token) {
-  const tgBot = new Telegram();
-}
+const tgBot = token ? new Telegram(token) : null;
 
 async function send(chatId, text, _options) {
-  if (!token) { return; }
+  if (!tgBot) { return; }
 
   tgBot.sendMessage(chatId, text, {
     parse_mode: 'markdown',
