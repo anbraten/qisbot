@@ -19,7 +19,7 @@ async function updateGrades() {
   grades.forEach(async (g) => {
     if (!DB.get('grades').find({ id: g.id }).value()) {
       DB.get('grades').push(g).write();
-      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* im erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
+      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
       Log('info', 'New grade for:', g.name);
     }
   });
