@@ -71,7 +71,7 @@ async function fetchAsi(token) {
   };
 
   const options = {
-    url: `${BASE_URL}//rds?${querystring.stringify(data)}`,
+    url: `${BASE_URL}/rds?${querystring.stringify(data)}`,
     headers: {
       Cookie: `JSESSIONID=${token};`,
     },
@@ -153,7 +153,7 @@ async function fetchGrades(token, asi) {
   };
 
   const options = {
-    url: `${BASE_URL}//rds?${querystring.stringify(data)}`,
+    url: `${BASE_URL}/rds?${querystring.stringify(data)}`,
     headers: {
       Cookie: `JSESSIONID=${token};`,
     },
