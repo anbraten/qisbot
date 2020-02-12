@@ -12,16 +12,19 @@ let token;
 let asi;
 
 async function updateGrades() {
-  const grades = await Api.fetchGrades(token, asi);
+  const degrees = await Api.fetchDegrees(token, asi);
+  degrees.forEach(async (d) => {
+    const grades = await Api.fetchGrades(token, asi, d);
 
-  if (!grades) { return; }
+    if (!grades) { return; }
 
-  grades.forEach(async (g) => {
-    if (!DB.get('grades').find({ id: g.id }).value()) {
-      DB.get('grades').push(g).write();
-      await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
-      Log('info', 'New grade for:', g.name);
-    }
+    grades.forEach(async (g) => {
+      if (!DB.get('grades').find({ id: g.id }).value()) {
+        DB.get('grades').push(g).write();
+        await Telegram.send(TELEGRAM_CHATID, `Du hast eine neue Note für *${g.name}* erhalten. [QIS öffnen](${BASE_URL}/rds?state=user&type=0)`);
+        Log('info', 'New grade for:', g.name);
+      }
+    });
   });
 }
 
