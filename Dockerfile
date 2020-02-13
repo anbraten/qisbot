@@ -1,9 +1,10 @@
 FROM node:12-alpine
 
 WORKDIR /app
+ENV NODE_ENV=production
 
 COPY package.json yarn.lock /app/
-RUN yarn --prod --frozen-lockfile
+RUN yarn --frozen-lockfile
 COPY src /app/src/
 
 VOLUME [ "/app/db" ]
