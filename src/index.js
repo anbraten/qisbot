@@ -13,6 +13,9 @@ let asi;
 
 async function updateGrades() {
   const degrees = await Api.fetchDegrees(token, asi);
+
+  if (!degrees) { return; }
+
   degrees.forEach(async (d) => {
     const grades = await Api.fetchGrades(token, asi, d);
 
