@@ -71,7 +71,7 @@ async function fetchAsi(token) {
   };
 
   const options = {
-    url: `${BASE_URL}//rds?${querystring.stringify(data)}`,
+    url: `${BASE_URL}/rds?${querystring.stringify(data)}`,
     headers: {
       Cookie: `JSESSIONID=${token};`,
     },
@@ -140,20 +140,54 @@ function getExamGrade(cols) {
   };
 }
 
-async function fetchGrades(token, asi) {
+async function fetchDegrees(token, asi) {
+  const data = {
+    state: 'notenspiegelStudent',
+    next: 'tree.vm',
+    nextdir: 'qispos/notenspiegel/student',
+    menuid: 'notenspiegelStudent',
+    breadcrumb: 'notenspiegel',
+    breadCrumbSource: 'menu',
+    asi,
+  };
+
+  const options = {
+    url: `${BASE_URL}/rds?${querystring.stringify(data)}`,
+    headers: {
+      Cookie: `JSESSIONID=${token};`,
+    },
+    validateStatus: (status) => (status >= 200 && status <= 302),
+    maxRedirects: 0,
+  };
+
+  const res = await restCall(options);
+
+  if (res) {
+    const degrees = [];
+    const $ = cheerio.load(res.data);
+    $('form > ul.treelist').find('a[name]').each((i, row) => {
+      degrees.push(decodeURIComponent($(row).attr('name')));
+    });
+
+    return degrees;
+  }
+  return null;
+}
+
+async function fetchGrades(token, asi, degree) {
   const data = {
     state: 'notenspiegelStudent',
     next: 'list.vm',
     nextdir: 'qispos/notenspiegel/student',
     createInfos: 'Y',
     struct: 'auswahlBaum',
-    nodeID: 'auswahlBaum|abschluss:abschl=84',
+    nodeID: degree,
     expand: '0',
     asi,
   };
 
   const options = {
-    url: `${BASE_URL}//rds?${querystring.stringify(data)}`,
+    url: `${BASE_URL}/rds?${querystring.stringify(data)}`,
     headers: {
       Cookie: `JSESSIONID=${token};`,
     },
@@ -193,5 +227,6 @@ module.exports = {
   isTokenValid,
   login,
   fetchAsi,
+  fetchDegrees,
   fetchGrades,
 };
