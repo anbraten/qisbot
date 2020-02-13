@@ -1,3 +1,5 @@
+![](https://github.com/lukashass/qisbot/workflows/.github/workflows/docker-buildx.yml/badge.svg)
+
 # qisbot
 Small bot to inform you about new grades in the QIS system by using telegram notifications.
 
@@ -37,4 +39,3 @@ LOG=info
 docker-compose up # run container
 docker-compose up -d # run container in background (usually what you want)
 ```
-
