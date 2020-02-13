@@ -1,3 +1,5 @@
+![](https://github.com/anbraten/qisbot/workflows/.github/workflows/docker-build.yml/badge.svg)
+
 # qisbot
 Small bot to inform you about new grades in the QIS system by using telegram notifications.
 
@@ -38,3 +40,15 @@ docker-compose up # run container
 docker-compose up -d # run container in background (usually what you want)
 ```
 
+## Production deployment
+Example docker-compose.yml
+```yml
+version: '3'
+services:
+  qisbot:
+    image: anbraten/qisbot
+    env_file: .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+```
