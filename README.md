@@ -1,4 +1,4 @@
-![](https://github.com/lukashass/qisbot/workflows/.github/workflows/docker-buildx.yml/badge.svg)
+![](https://github.com/lukashass/qisbot/workflows/.github/workflows/docker-build.yml/badge.svg?branch=docker-build)
 
 # qisbot
 Small bot to inform you about new grades in the QIS system by using telegram notifications.
